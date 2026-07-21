@@ -1,0 +1,19 @@
+{
+  "name": "vortex-av-engine",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Audio-reactive WebGL instrument mapping local audio analysis to procedural geometry and particles.",
+  "keywords": [
+    "creative-coding",
+    "web-audio-api",
+    "threejs",
+    "webgl",
+    "audio-reactive",
+    "audiovisual",
+    "interactive-art"
+  ],
+  "license": "MIT",
+  "scripts": {
+    "start": "python3 -m http.server 8000"
+  }
+}

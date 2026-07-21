@@ -1,0 +1,214 @@
+:root {
+            --bg-dark: #050505;
+            --panel-bg: #0a0a0a;
+            --border-dim: #222;
+            --accent-primary: #00f0ff;
+            --accent-secondary: #ff003c;
+            --accent-tertiary: #fcee0a;
+            --text-main: #e0e0e0;
+            --text-dim: #666;
+        }
+
+        body {
+            background-color: var(--bg-dark);
+            color: var(--text-main);
+            font-family: 'Rajdhani', sans-serif;
+            overflow: hidden;
+            height: 100vh;
+            width: 100vw;
+        }
+
+        .mono {
+            font-family: 'JetBrains Mono', monospace;
+        }
+
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar {
+            width: 4px;
+            height: 4px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #000;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #333;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: var(--accent-primary);
+        }
+
+        /* UI Elements */
+        .panel {
+            background: var(--panel-bg);
+            border: 1px solid var(--border-dim);
+            position: relative;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .panel::before {
+            content: '';
+            position: absolute;
+            top: 0; left: 0; width: 100%; height: 2px;
+            background: linear-gradient(90deg, transparent, var(--accent-primary), transparent);
+            opacity: 0.3;
+        }
+
+        .panel-header {
+            background: rgba(255,255,255,0.02);
+            border-bottom: 1px solid var(--border-dim);
+            padding: 4px 8px;
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .grid-bg {
+            background-image: 
+                linear-gradient(rgba(255, 255, 255, 0.03) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(255, 255, 255, 0.03) 1px, transparent 1px);
+            background-size: 20px 20px;
+        }
+
+        /* Range Slider Styling */
+        input[type=range] {
+            -webkit-appearance: none;
+            width: 100%;
+            background: transparent;
+        }
+        input[type=range]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            height: 10px;
+            width: 4px;
+            background: var(--accent-primary);
+            cursor: pointer;
+            margin-top: -3px;
+            box-shadow: 0 0 5px var(--accent-primary);
+        }
+        input[type=range]::-webkit-slider-runnable-track {
+            width: 100%;
+            height: 4px;
+            background: #222;
+            border: 1px solid #333;
+        }
+
+        /* Knob Simulation */
+        .knob-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        .knob {
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            background: conic-gradient(var(--accent-primary) 0%, #111 0%);
+            border: 2px solid #333;
+            position: relative;
+            cursor: pointer;
+            box-shadow: 0 0 5px rgba(0,0,0,0.5);
+        }
+        .knob::after {
+            content: '';
+            position: absolute;
+            top: 50%; left: 50%;
+            width: 2px; height: 8px;
+            background: #fff;
+            transform-origin: bottom center;
+            transform: translate(-50%, -100%) rotate(0deg);
+        }
+
+        /* Drag Drop Zone */
+        #drop-zone {
+            border: 2px dashed var(--border-dim);
+            transition: all 0.3s ease;
+            background: rgba(0,0,0,0.2);
+        }
+        #drop-zone.dragover {
+            border-color: var(--accent-primary);
+            background: rgba(0, 240, 255, 0.1);
+            box-shadow: inset 0 0 20px rgba(0, 240, 255, 0.2);
+        }
+
+        /* Canvas Overlay */
+        canvas {
+            display: block;
+        }
+        
+        .viz-canvas-container {
+            position: relative;
+            width: 100%;
+            height: 100%;
+            background: #000;
+        }
+
+        /* Matrix Grid */
+        .matrix-grid {
+            display: grid;
+            grid-template-columns: repeat(8, 1fr);
+            gap: 2px;
+        }
+        .matrix-cell {
+            aspect-ratio: 1;
+            background: #111;
+            border: 1px solid #222;
+            cursor: pointer;
+            transition: background 0.1s;
+        }
+        .matrix-cell.active {
+            background: var(--accent-secondary);
+            box-shadow: 0 0 4px var(--accent-secondary);
+        }
+        .matrix-cell:hover {
+            border-color: #444;
+        }
+
+        /* Floating Node Window */
+        .node-window {
+            position: absolute;
+            top: 20px; left: 20px;
+            width: 200px;
+            background: rgba(10, 10, 10, 0.9);
+            border: 1px solid var(--accent-tertiary);
+            backdrop-filter: blur(4px);
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+            z-index: 10;
+        }
+
+        /* Timeline */
+        .timeline-track {
+            height: 40px;
+            background: #080808;
+            border-bottom: 1px solid #222;
+            position: relative;
+        }
+        .playhead {
+            position: absolute;
+            top: 0; bottom: 0;
+            width: 2px;
+            background: var(--accent-secondary);
+            left: 0%;
+            box-shadow: 0 0 10px var(--accent-secondary);
+            z-index: 5;
+            pointer-events: none;
+        }
+        
+        /* Utility classes for dense UI */
+        .text-xs { font-size: 0.7rem; }
+        .text-xxs { font-size: 0.6rem; }
+        .text-neon-blue { color: var(--accent-primary); text-shadow: 0 0 5px rgba(0,240,255,0.5); }
+        .text-neon-red { color: var(--accent-secondary); text-shadow: 0 0 5px rgba(255,0,60,0.5); }
+        
+        .crt-overlay {
+            pointer-events: none;
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.25) 50%), linear-gradient(90deg, rgba(255, 0, 0, 0.06), rgba(0, 255, 0, 0.02), rgba(0, 0, 255, 0.06));
+            background-size: 100% 2px, 3px 100%;
+            z-index: 9999;
+            opacity: 0.4;
+        }

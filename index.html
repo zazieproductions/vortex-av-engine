@@ -1,0 +1,267 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>VORTEX // Audio-Reactive WebGL Instrument</title>
+    <meta name="description" content="An experimental browser-based audiovisual instrument that maps audio frequency data to real-time WebGL geometry, particle systems, and signal-analysis interfaces.">
+    <meta name="theme-color" content="#050505">
+    <meta property="og:title" content="VORTEX // Audio-Reactive WebGL Instrument">
+    <meta property="og:description" content="A modular audiovisual environment built with the Web Audio API, Three.js, Canvas, and procedural signal mapping.">
+    <meta property="og:type" content="website">
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- Three.js -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    
+    <!-- Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@100;400;700;800&family=Rajdhani:wght@300;500;700&display=swap" rel="stylesheet">
+
+    <link rel="stylesheet" href="assets/css/styles.css">
+</head>
+<body class="flex flex-col h-screen w-screen overflow-hidden">
+
+    <!-- CRT Effect Overlay -->
+    <div class="crt-overlay"></div>
+
+    <!-- Header / Top Bar -->
+    <header class="h-8 bg-[#080808] border-b border-[#222] flex items-center justify-between px-4 shrink-0 z-20">
+        <div class="flex items-center space-x-4">
+            <h1 class="text-neon-blue font-bold tracking-widest text-lg">VORTEX<span class="text-white text-xs align-top opacity-50">OS v4.2</span></h1>
+            <span class="text-xs text-gray-500 mono">CPU: <span id="cpu-stat">12</span>% MEM: <span id="mem-stat">402</span>MB</span>
+        </div>
+        <div class="flex items-center space-x-2">
+            <div class="h-2 w-2 rounded-full bg-green-500 animate-pulse"></div>
+            <span class="text-xs text-gray-400 mono">AUDIO_ENGINE: READY</span>
+        </div>
+    </header>
+
+    <!-- Main Workspace -->
+    <main class="flex-1 flex overflow-hidden relative">
+        
+        <!-- LEFT SIDEBAR: Project & IO -->
+        <aside class="w-64 flex flex-col border-r border-[#222] bg-[#0a0a0a] z-10 shrink-0">
+            
+            <!-- File Upload Module -->
+            <div class="panel flex-1 p-3">
+                <div class="panel-header mb-2">
+                    <span class="text-neon-red">Input_Source</span>
+                    <span class="text-xxs text-gray-500">.WAV .MP3</span>
+                </div>
+                
+                <div id="drop-zone" class="flex flex-col items-center justify-center h-32 rounded mb-4">
+                    <svg class="w-8 h-8 text-gray-600 mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"></path></svg>
+                    <span class="text-xs text-gray-500 mono">DRAG AUDIO FILE</span>
+                    <input type="file" id="audio-file" accept="audio/*" class="hidden">
+                    <button id="upload-btn" class="mt-2 px-2 py-1 border border-gray-600 text-xs hover:border-white transition-colors mono">BROWSE</button>
+                </div>
+
+                <div id="track-info" class="hidden mb-4 p-2 border border-[#222] bg-black/40">
+                    <div class="text-xs text-neon-blue truncate mb-1" id="file-name">Unknown_Track.mp3</div>
+                    <div class="flex justify-between text-xxs text-gray-500 mono">
+                        <span id="time-current">00:00</span>
+                        <span id="time-total">00:00</span>
+                    </div>
+                    <div class="w-full bg-gray-900 h-1 mt-1">
+                        <div id="playback-bar" class="h-full bg-neon-blue w-0"></div>
+                    </div>
+                </div>
+
+                <!-- Controls Stack -->
+                <div class="space-y-4">
+                    <div class="border border-[#222] p-2">
+                        <div class="text-xs text-gray-400 mb-2 border-b border-[#222] pb-1">MASTER_OUT</div>
+                        <div class="flex items-center space-x-2">
+                            <button id="play-btn" class="flex-1 py-1 bg-[#111] border border-[#333] text-xs hover:bg-[#222] hover:border-neon-blue transition-all">PLAY</button>
+                            <button id="stop-btn" class="w-8 py-1 bg-[#111] border border-[#333] text-xs hover:border-red-500 transition-all">■</button>
+                        </div>
+                    </div>
+
+                    <div class="border border-[#222] p-2">
+                        <div class="text-xs text-gray-400 mb-2 border-b border-[#222] pb-1">OSCILLATOR_BANK</div>
+                        <div class="flex justify-between text-xxs mono mb-1">
+                            <span>SINE</span>
+                            <span class="text-neon-blue">440Hz</span>
+                        </div>
+                        <input type="range" min="0" max="100" value="50" class="mb-3">
+                        <div class="flex justify-between text-xxs mono mb-1">
+                            <span>SAW</span>
+                            <span class="text-neon-red">DETUNE</span>
+                        </div>
+                        <input type="range" min="0" max="100" value="70">
+                    </div>
+                </div>
+            </div>
+        </aside>
+
+        <!-- CENTER VIEWPORT: 3D Visualization -->
+        <section class="flex-1 relative bg-black flex flex-col">
+            <!-- Canvas Layer -->
+            <div id="canvas-container" class="viz-canvas-container grid-bg">
+                <!-- Floating "Node" Simulation -->
+                <div class="node-window">
+                    <div class="bg-[#1a1a1a] px-2 py-1 text-xs font-bold flex justify-between items-center border-b border-[#333]">
+                        <span>NODE_PATCHER</span>
+                        <div class="flex space-x-1">
+                            <div class="w-2 h-2 rounded-full bg-red-500"></div>
+                            <div class="w-2 h-2 rounded-full bg-yellow-500"></div>
+                        </div>
+                    </div>
+                    <div class="p-3 relative h-24">
+                        <!-- SVG Wires -->
+                        <svg class="absolute inset-0 w-full h-full pointer-events-none" style="z-index: 0;">
+                            <path d="M20,40 C50,40 50,80 80,80" stroke="#fcee0a" stroke-width="1" fill="none" opacity="0.5"/>
+                            <path d="M20,60 C60,60 60,20 100,20" stroke="#00f0ff" stroke-width="1" fill="none" opacity="0.5"/>
+                        </svg>
+                        <!-- Nodes -->
+                        <div class="absolute top-4 left-2 w-3 h-3 border border-gray-500 bg-black z-10"></div>
+                        <div class="absolute top-8 left-2 w-3 h-3 border border-gray-500 bg-black z-10"></div>
+                        <div class="absolute bottom-4 right-8 w-3 h-3 border border-gray-500 bg-black z-10"></div>
+                        <div class="absolute bottom-8 right-8 w-3 h-3 border border-gray-500 bg-black z-10"></div>
+                    </div>
+                </div>
+                <!-- 3D Canvas Injected Here -->
+            </div>
+
+            <!-- Bottom Info Bar (Overlay) -->
+            <div class="h-6 bg-[#0a0a0a] border-t border-[#222] flex items-center justify-between px-2 text-xxs mono text-gray-500 z-10">
+                <div>RENDERER: WEBGL2 / THREE.JS / PERSPECTIVE_CAM</div>
+                <div>SHADERS: ACTIVE_VOLUMETRIC_PASS</div>
+            </div>
+        </section>
+
+        <!-- RIGHT SIDEBAR: Inspector & FX -->
+        <aside class="w-72 flex flex-col border-l border-[#222] bg-[#0a0a0a] z-10 shrink-0">
+            <div class="panel h-1/2 p-3 border-b border-[#222]">
+                <div class="panel-header mb-2">
+                    <span>MOD_MATRIX</span>
+                    <span class="text-neon-blue">EDIT</span>
+                </div>
+                <div class="matrix-grid mb-4" id="mod-matrix">
+                    <!-- JS generated cells -->
+                </div>
+                <div class="space-y-2">
+                    <div class="flex justify-between text-xxs text-gray-400 mono">
+                        <span>SPEED</span>
+                        <span id="val-speed">1.0x</span>
+                    </div>
+                    <input type="range" id="param-speed" min="0.1" max="3.0" step="0.1" value="1.0">
+                    
+                    <div class="flex justify-between text-xxs text-gray-400 mono mt-2">
+                        <span>DISTORTION</span>
+                        <span id="val-distort">0.5</span>
+                    </div>
+                    <input type="range" id="param-distort" min="0" max="2.0" step="0.05" value="0.5">
+                </div>
+            </div>
+
+            <div class="panel flex-1 p-3">
+                <div class="panel-header mb-2">
+                    <span>ANALYSIS</span>
+                </div>
+                
+                <div class="flex space-x-2 mb-4">
+                    <div class="flex-1 bg-black h-16 border border-[#222] relative overflow-hidden">
+                        <!-- Frequency Visualizer (2D Canvas) -->
+                        <canvas id="freq-canvas" class="w-full h-full"></canvas>
+                    </div>
+                    <div class="w-16 bg-black h-16 border border-[#222] relative overflow-hidden">
+                        <!-- Waveform Visualizer -->
+                        <canvas id="wave-canvas" class="w-full h-full"></canvas>
+                    </div>
+                </div>
+
+                <div class="space-y-3">
+                    <div class="knob-container">
+                        <div class="knob" style="background: conic-gradient(var(--accent-tertiary) 70%, #111 0%);"></div>
+                        <span class="text-xxs text-gray-500 mt-1">GAIN</span>
+                    </div>
+                    <div class="flex space-x-4 justify-center">
+                        <div class="knob-container">
+                            <div class="knob" style="background: conic-gradient(var(--accent-primary) 40%, #111 0%);"></div>
+                            <span class="text-xxs text-gray-500 mt-1">BASS</span>
+                        </div>
+                        <div class="knob-container">
+                            <div class="knob" style="background: conic-gradient(var(--accent-secondary) 85%, #111 0%);"></div>
+                            <span class="text-xxs text-gray-500 mt-1">TREBLE</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="mt-4 p-2 border border-[#222] bg-black/30">
+                    <div class="text-xs text-gray-500 mb-1">LOG_OUTPUT</div>
+                    <div class="text-xxs mono text-green-500 h-20 overflow-hidden" id="console-log">
+                        > System initialized...<br>
+                        > Waiting for audio stream...
+                    </div>
+                </div>
+            </div>
+        </aside>
+    </main>
+
+    <!-- BOTTOM TIMELINE -->
+    <footer class="h-32 bg-[#080808] border-t border-[#222] flex flex-col shrink-0 z-10">
+        <div class="flex-1 relative overflow-x-auto overflow-y-hidden bg-[#050505]">
+            <div class="playhead" id="playhead"></div>
+            <!-- Ruler -->
+            <div class="h-4 bg-[#111] border-b border-[#222] flex text-xxs text-gray-600 font-mono whitespace-nowrap">
+                <span class="px-4 border-r border-[#222]">1.1</span>
+                <span class="px-4 border-r border-[#222]">1.2</span>
+                <span class="px-4 border-r border-[#222]">1.3</span>
+                <span class="px-4 border-r border-[#222]">1.4</span>
+                <span class="px-4 border-r border-[#222]">2.1</span>
+                <span class="px-4 border-r border-[#222]">2.2</span>
+                <span class="px-4 border-r border-[#222]">2.3</span>
+                <span class="px-4 border-r border-[#222]">2.4</span>
+                <span class="px-4 border-r border-[#222]">3.1</span>
+                <span class="px-4 border-r border-[#222]">3.2</span>
+                <span class="px-4 border-r border-[#222]">3.3</span>
+                <span class="px-4 border-r border-[#222]">3.4</span>
+                <span class="px-4 border-r border-[#222]">4.1</span>
+                <span class="px-4 border-r border-[#222]">4.2</span>
+                <span class="px-4 border-r border-[#222]">4.3</span>
+                <span class="px-4 border-r border-[#222]">4.4</span>
+            </div>
+            
+            <!-- Tracks -->
+            <div class="flex flex-col">
+                <div class="timeline-track flex items-center px-2">
+                    <span class="text-xxs text-gray-600 w-16 shrink-0">MASTER</span>
+                    <div class="flex-1 h-full flex space-x-1">
+                        <!-- Simulated Audio Blocks -->
+                        <div class="h-8 w-1/3 bg-blue-900/30 border border-blue-500/30 rounded-sm"></div>
+                        <div class="h-8 w-1/4 bg-blue-900/30 border border-blue-500/30 rounded-sm ml-auto"></div>
+                    </div>
+                </div>
+                <div class="timeline-track flex items-center px-2">
+                    <span class="text-xxs text-gray-600 w-16 shrink-0">FX_BUS_1</span>
+                    <div class="flex-1 h-full flex space-x-1">
+                        <div class="h-8 w-1/2 bg-purple-900/30 border border-purple-500/30 rounded-sm"></div>
+                    </div>
+                </div>
+                 <div class="timeline-track flex items-center px-2">
+                    <span class="text-xxs text-gray-600 w-16 shrink-0">PARTICLES</span>
+                    <div class="flex-1 h-full flex space-x-1">
+                        <div class="h-8 w-full bg-green-900/20 border border-green-500/20 rounded-sm relative overflow-hidden">
+                            <div class="absolute inset-0 bg-[url('data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSI0IiBoZWlnaHQ9IjQiPgo8cmVjdCB3aWR0aD0iNCIgaGVpZ2h0PSI0IiBmaWxsPSIjZmZmIiBmaWxsLW9wYWNpdHk9IjAuMDUiLz4KPC9zdmc+')]"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="h-6 bg-[#0a0a0a] border-t border-[#222] flex items-center justify-between px-4 text-xxs">
+            <div class="flex space-x-4">
+                <span class="text-gray-500">BPM: <span class="text-white">128.00</span></span>
+                <span class="text-gray-500">SIG: <span class="text-white">4/4</span></span>
+                <span class="text-gray-500">BAR: <span class="text-white">0012</span></span>
+            </div>
+            <div class="text-gray-600">LOOP: OFF</div>
+        </div>
+    </footer>
+
+    <!-- Application Logic -->
+    <script src="assets/js/app.js"></script>
+</body>
+</html>
