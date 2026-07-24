@@ -80,17 +80,25 @@
                     </div>
 
                     <div class="border border-[#222] p-2">
+                        <div class="text-xs text-gray-400 mb-2 border-b border-[#222] pb-1">LIVE_PREVIEWS</div>
+                        <div class="flex flex-col space-y-2">
+                            <button id="mic-btn" class="py-1 bg-[#111] border border-[#333] text-xs hover:bg-[#222] hover:text-neon-red hover:border-neon-red transition-all mono">🎤 MIC / LINE INPUT</button>
+                            <button id="synth-btn" class="py-1 bg-[#111] border border-[#333] text-xs hover:bg-[#222] hover:text-[#fcee0a] hover:border-[#fcee0a] transition-all mono">🎹 SYNTH / GEN DEMO</button>
+                        </div>
+                    </div>
+
+                    <div class="border border-[#222] p-2">
                         <div class="text-xs text-gray-400 mb-2 border-b border-[#222] pb-1">OSCILLATOR_BANK</div>
                         <div class="flex justify-between text-xxs mono mb-1">
-                            <span>SINE</span>
-                            <span class="text-neon-blue">440Hz</span>
+                            <span>LEAD PITCH</span>
+                            <span class="text-neon-blue" id="val-lead-pitch">1.0x</span>
                         </div>
-                        <input type="range" min="0" max="100" value="50" class="mb-3">
+                        <input type="range" id="param-lead-pitch" min="0.5" max="2.0" step="0.1" value="1.0" class="mb-3">
                         <div class="flex justify-between text-xxs mono mb-1">
-                            <span>SAW</span>
-                            <span class="text-neon-red">DETUNE</span>
+                            <span>BASS FILTER</span>
+                            <span class="text-neon-red" id="val-bass-filter">400Hz</span>
                         </div>
-                        <input type="range" min="0" max="100" value="70">
+                        <input type="range" id="param-bass-filter" min="100" max="1200" step="10" value="400">
                     </div>
                 </div>
             </div>

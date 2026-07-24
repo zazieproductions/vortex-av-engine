@@ -34,6 +34,9 @@ The interface borrows the visual grammar of modular synthesis environments, digi
 
 ## Features
 
+- **Live Microphone / Line-in preview** with automated acoustic feedback protection (speak, clap, or play external music to visualize instantly)
+- **Built-in Procedural Synthesizer generator** (generates a live 120 BPM sci-fi electronic soundtrack right inside your browser to preview reactivity)
+- **Interactive Oscillator Bank controllers** (real-time control over lead arpeggiator pitch multipliers and lowpass bass filter cutoffs)
 - Local drag-and-drop audio loading
 - Audio playback entirely inside the browser
 - Real-time frequency and waveform analysis
@@ -89,8 +92,16 @@ Then visit `http://localhost:8000`.
 
 ## Interaction
 
-1. Drag an MP3, WAV, or other browser-supported audio file into the input panel.
-2. Press **Play**.
+### Live Audio & Synthesizer Preview
+1. Click **🎤 MIC / LINE INPUT** to authorize browser microphone access. The 3D scene and analyzers will instantly react live to your voice, clapping, or background speakers.
+2. Click **🎹 SYNTH / GEN DEMO** to fire up the generative synthesizer engine. It will loop a 120 BPM deep techno arpeggiator track.
+3. Use the **OSCILLATOR_BANK** sliders to tune the synthesizer in real-time:
+   - Adjust **LEAD PITCH** to shift the multiplier of the arpeggiated lead line.
+   - Adjust **BASS FILTER** to change the lowpass cutoff frequency of the driving sub-bass.
+
+### File Playback
+1. Drag an MP3, WAV, or other browser-supported audio file into the input panel (or click **BROWSE**).
+2. Press **PLAY**.
 3. Adjust **Speed** to alter the motion rate.
 4. Adjust **Distortion** to intensify mesh deformation and bass response.
 5. Toggle cells in the modulation matrix as part of the interface experiment.
