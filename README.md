@@ -1,4 +1,19 @@
 # VORTEX // Audio-Reactive WebGL Instrument
+<p align="center">
+  <a href="https://zazieproductions.github.io/vortex-av-engine/">
+    <img
+      src="docs/vortex-preview.png"
+      width="100%"
+      alt="Vortex AV Engine audio-reactive WebGL interface"
+    >
+  </a>
+</p>
+
+<p align="center">
+  <a href="https://zazieproductions.github.io/vortex-av-engine/">
+    <strong>⌰⟟ ENTER THE VORTEX ⍧⏧</strong>
+  </a>
+</p>
 
 **VORTEX** is an experimental browser-based audiovisual instrument that translates uploaded audio into a responsive three-dimensional signal environment.
 
